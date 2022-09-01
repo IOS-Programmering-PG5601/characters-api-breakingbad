@@ -7,60 +7,36 @@
 
 import SwiftUI
 
-struct Characters: Codable {
-    let char_id: Int
-    let name: String
-    let img: String
-    
-
-   
-}
-
-
-
-
 
 struct ContentView: View {
-    @State private var values = [Characters]()
+    @StateObject var fetchCharacter = FetchCharacters()
   
     var body: some View {
        
         NavigationView {
-            List(values, id: \.char_id) { item in
+            List(fetchCharacter.values, id: \.char_id) { item in
                 
                 HStack {
-                    Image(item.img)
-                    Text(item.name)
-                        .font(.body)
+                   
+                    VStack(alignment: .leading) {
+                        Text(item.name)
+                            .font(.title3).bold()
                         .foregroundColor(.secondary)
+                        Text(item.nickname)
+                        Spacer()
+                        Text(item.status).foregroundColor(.secondary)
+                    }
+                    Image(item.img).resizable().aspectRatio(contentMode: .fit)
                 }
             }.navigationTitle("Characters").task {
-                await fetchData()
+                await fetchCharacter.fetchData()
             }
         }
         }
 
   
     
-    func fetchData() async {
-        // Hent url
-        guard let url = URL(string: "https://breakingbadapi.com/api/characters") else {
-          print("This url is unfortunately not working at this time")
-            return
-        }
-        // fetch data fra urlen
-        
-        do{
-            let (data, _) = try await URLSession.shared.data(from: url)
-            if let response = try? JSONDecoder().decode([Characters].self, from: data) {
-                values = response
-            }
-        }
-        catch {
-            print("Data not valid")
-        }
-        // decode denne dataen
-    }
+   
 
 }
 
